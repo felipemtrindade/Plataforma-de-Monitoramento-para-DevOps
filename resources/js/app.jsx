@@ -17,6 +17,7 @@ import '../css/app.css';
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Tooltip, Legend);
 
 const storedToken = () => localStorage.getItem('monitor_token');
+const sseEnabled = import.meta.env.VITE_ENABLE_SSE === 'true';
 
 const api = async (path, options = {}) => {
   const token = storedToken();
@@ -45,6 +46,21 @@ const navItems = [
   ['docs', 'Runbooks'],
 ];
 
+const parseHashRoute = () => {
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  const [route = 'dashboard', id] = hash.split('/');
+
+  if (route === 'services' && id) {
+    return { page: 'service-detail', selectedServiceId: Number(id) };
+  }
+
+  if (navItems.some(([item]) => item === route)) {
+    return { page: route, selectedServiceId: null };
+  }
+
+  return { page: 'dashboard', selectedServiceId: null };
+};
+
 const badgeClass = (value) => {
   if (['UP', 'GREEN', 'LOW'].includes(value)) return 'badge success';
   if (['YELLOW', 'MEDIUM'].includes(value)) return 'badge warning';
@@ -52,14 +68,16 @@ const badgeClass = (value) => {
 };
 
 function App() {
-  const [page, setPage] = useState('dashboard');
-  const [selectedServiceId, setSelectedServiceId] = useState(null);
+  const initialRoute = useMemo(parseHashRoute, []);
+  const [page, setPage] = useState(initialRoute.page);
+  const [selectedServiceId, setSelectedServiceId] = useState(initialRoute.selectedServiceId);
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [liveMode, setLiveMode] = useState('conectando');
   const knownNotificationIds = useRef(new Set());
   const firstNotificationLoad = useRef(true);
 
@@ -85,12 +103,10 @@ function App() {
     knownNotificationIds.current = new Set();
     firstNotificationLoad.current = true;
     setPage('dashboard');
+    window.location.hash = '/dashboard';
   };
 
-  const loadNotifications = async () => {
-    if (!storedToken()) return;
-    try {
-      const nextNotifications = await api('/notifications');
+  const applyNotifications = (nextNotifications) => {
       const incoming = nextNotifications.filter((item) => !knownNotificationIds.current.has(item.id));
 
       if (firstNotificationLoad.current) {
@@ -102,6 +118,12 @@ function App() {
 
       knownNotificationIds.current = new Set(nextNotifications.map((item) => item.id));
       setNotifications(nextNotifications);
+  };
+
+  const loadNotifications = async () => {
+    if (!storedToken()) return;
+    try {
+      applyNotifications(await api('/notifications'));
     } catch (error) {
       if (String(error.message).includes('401') || String(error.message).includes('403')) {
         await logout();
@@ -127,15 +149,72 @@ function App() {
 
   useEffect(() => {
     if (!user) return undefined;
-    loadNotifications();
-    const interval = setInterval(loadNotifications, 10000);
-    return () => clearInterval(interval);
+    const token = storedToken();
+
+    if (!sseEnabled || !window.EventSource || !token) {
+      setLiveMode('polling');
+      loadNotifications();
+      const fallbackInterval = setInterval(loadNotifications, 30000);
+      const refreshOnFocus = () => {
+        if (document.visibilityState === 'visible') {
+          loadNotifications();
+        }
+      };
+
+      document.addEventListener('visibilitychange', refreshOnFocus);
+
+      return () => {
+        clearInterval(fallbackInterval);
+        document.removeEventListener('visibilitychange', refreshOnFocus);
+      };
+    }
+
+    setLiveMode('conectando');
+    const stream = new EventSource(`/api/notifications/stream?token=${encodeURIComponent(token)}`);
+    let fallbackInterval = null;
+
+    stream.addEventListener('open', () => setLiveMode('tempo real'));
+    stream.addEventListener('notifications', (event) => {
+      setLiveMode('tempo real');
+      applyNotifications(JSON.parse(event.data));
+    });
+    stream.addEventListener('error', () => {
+      stream.close();
+      setLiveMode('polling');
+      loadNotifications();
+      fallbackInterval = setInterval(loadNotifications, 30000);
+    });
+
+    return () => {
+      stream.close();
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+      }
+    };
   }, [user]);
 
   const openService = (id) => {
     setSelectedServiceId(id);
     setPage('service-detail');
+    window.location.hash = `/services/${id}`;
   };
+
+  const navigate = (nextPage) => {
+    setSelectedServiceId(null);
+    setPage(nextPage);
+    window.location.hash = `/${nextPage}`;
+  };
+
+  useEffect(() => {
+    const syncRoute = () => {
+      const route = parseHashRoute();
+      setPage(route.page);
+      setSelectedServiceId(route.selectedServiceId);
+    };
+
+    window.addEventListener('hashchange', syncRoute);
+    return () => window.removeEventListener('hashchange', syncRoute);
+  }, []);
 
   if (booting) {
     return <State title="Carregando" message="Validando sessão administrativa..." />;
@@ -154,7 +233,7 @@ function App() {
         </div>
         <nav>
           {navItems.map(([id, label]) => (
-            <button key={id} className={page === id ? 'active' : ''} onClick={() => setPage(id)}>
+            <button key={id} className={page === id || (page === 'service-detail' && id === 'services') ? 'active' : ''} onClick={() => navigate(id)}>
               {label}
             </button>
           ))}
@@ -180,6 +259,7 @@ function App() {
         <NotificationBar
           notifications={notifications}
           unreadCount={unreadCount}
+          liveMode={liveMode}
           isOpen={notificationOpen}
           onToggle={() => {
             setNotificationOpen((open) => !open);
@@ -192,7 +272,7 @@ function App() {
         />
         {page === 'dashboard' && <Dashboard onMonitorFinished={loadNotifications} />}
         {page === 'services' && <Services onOpen={openService} />}
-        {page === 'service-detail' && <ServiceDetail id={selectedServiceId} onBack={() => setPage('services')} />}
+        {page === 'service-detail' && <ServiceDetail id={selectedServiceId} onBack={() => navigate('services')} />}
         {page === 'alerts' && <Alerts />}
         {page === 'security' && <Security onChanged={loadNotifications} />}
         {page === 'docs' && <Docs />}
@@ -300,7 +380,7 @@ function Dashboard({ onMonitorFinished }) {
           <Bar
             data={{
               labels: latency.map((item) => item.service),
-              datasets: [{ label: 'ms', data: latency.map((item) => item.latency_ms), backgroundColor: '#2563eb' }],
+              datasets: [{ label: 'ms', data: latency.map((item) => item.latency_ms || null), backgroundColor: '#2563eb' }],
             }}
           />
         </ChartPanel>
@@ -424,7 +504,7 @@ function Services({ onOpen }) {
                   <td>{service.alerts_count}</td>
                   <td className="actions">
                     <button onClick={() => onOpen(service.id)}>Detalhes</button>
-                    <button className="ghost danger-text" onClick={() => remove(service.id)}>Excluir</button>
+                    <button className="ghost danger-text" onClick={() => remove(service.id)}>Arquivar</button>
                   </td>
                 </tr>
               ))}
@@ -465,7 +545,7 @@ function ServiceDetail({ id, onBack }) {
         <Line
           data={{
             labels: orderedMetrics.map((metric) => new Date(metric.created_at).toLocaleTimeString()),
-            datasets: [{ label: 'Latência (ms)', data: orderedMetrics.map((metric) => metric.latency_ms ?? 0), borderColor: '#2563eb', backgroundColor: '#bfdbfe' }],
+            datasets: [{ label: 'Latência (ms)', data: orderedMetrics.map((metric) => metric.latency_ms), borderColor: '#2563eb', backgroundColor: '#bfdbfe', spanGaps: false }],
           }}
         />
       </ChartPanel>
@@ -476,7 +556,7 @@ function ServiceDetail({ id, onBack }) {
       )}
       <div className="two-columns">
         <Panel title="Últimas métricas">
-          <MiniList items={metrics.slice(0, 8).map((metric) => `${metric.status} - ${metric.latency_ms ?? 'sem resposta'} ms - ${metric.requests_per_second} req/s`)} />
+          <MiniList items={metrics.slice(0, 8).map((metric) => `${metric.status} - ${metric.latency_ms ? `${metric.latency_ms} ms` : 'sem resposta'} - ${metric.requests_per_second} req/s`)} />
         </Panel>
         <Panel title="Alertas do serviço">
           <MiniList items={service.alerts.map((alert) => `${alert.level}: ${alert.message}`)} />
@@ -559,7 +639,7 @@ function Alerts() {
 }
 
 function Security({ onChanged }) {
-  const [data, setData] = useState({ events: [], known_vulnerabilities: [] });
+  const [data, setData] = useState({ events: [], known_vulnerabilities: [], login_failures: [] });
 
   useEffect(() => { api('/security-events').then(setData); }, []);
 
@@ -583,6 +663,9 @@ function Security({ onChanged }) {
         </Panel>
         <Panel title="Vulnerabilidades conhecidas">
           <MiniList items={data.known_vulnerabilities.map((event) => `${event.level}${event.service ? ` - ${event.service.name}` : ''} - ${event.description}`)} />
+        </Panel>
+        <Panel title="Histórico de falhas de login">
+          <MiniList items={data.login_failures.map((failure) => `${failure.source_ip} tentou acessar ${failure.email ?? 'usuário desconhecido'} em ${new Date(failure.created_at).toLocaleString()}`)} />
         </Panel>
       </div>
     </section>
@@ -617,8 +700,14 @@ function PageHeader({ title, subtitle }) {
   );
 }
 
-function NotificationBar({ notifications, unreadCount, isOpen, onToggle, onRefresh }) {
+function NotificationBar({ notifications, unreadCount, liveMode, isOpen, onToggle, onRefresh }) {
   const criticalCount = notifications.filter((item) => ['RED', 'HIGH', 'CRITICAL'].includes(item.level)).length;
+  const unreadLabel = unreadCount === 1
+    ? '1 notificação nova detectada automaticamente'
+    : `${unreadCount} notificações novas detectadas automaticamente`;
+  const recentLabel = notifications.length === 1
+    ? '1 notificação recente'
+    : `${notifications.length} notificações recentes`;
 
   return (
     <div className={`notification-bar ${isOpen ? 'expanded' : 'compact'}`}>
@@ -626,9 +715,10 @@ function NotificationBar({ notifications, unreadCount, isOpen, onToggle, onRefre
         <strong>{criticalCount} avisos críticos</strong>
         <span>
           {unreadCount > 0
-            ? `${unreadCount} notificações novas detectadas automaticamente`
-            : `${notifications.length} notificações recentes monitoradas a cada 10s`}
+            ? unreadLabel
+            : recentLabel}
         </span>
+        <small>Modo: {liveMode === 'tempo real' ? 'SSE em tempo quase real' : liveMode === 'polling' ? 'atualização leve a cada 30s' : 'conectando stream'}</small>
       </div>
       <button className="ghost" onClick={onToggle}>{isOpen ? 'Ocultar avisos' : 'Ver avisos'}</button>
       <button className="ghost" onClick={onRefresh}>Atualizar avisos</button>

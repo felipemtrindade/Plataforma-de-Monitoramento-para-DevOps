@@ -44,7 +44,7 @@ class ServiceController extends Controller
     {
         $service->delete();
 
-        return response()->json(['message' => 'Serviço removido com sucesso.']);
+        return response()->json(['message' => 'Serviço arquivado com sucesso. O histórico foi preservado.']);
     }
 
     public function metrics(Service $service): JsonResponse

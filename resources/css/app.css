@@ -239,6 +239,12 @@ select {
   color: #475569;
 }
 
+.notification-bar small {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .notification-list {
   grid-column: 1 / -1;
   display: grid;

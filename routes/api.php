@@ -5,11 +5,13 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\MonitorController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\NotificationStreamController;
 use App\Http\Controllers\Api\SecurityEventController;
 use App\Http\Controllers\Api\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/notifications/stream', NotificationStreamController::class);
 
 Route::middleware('admin.token')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);

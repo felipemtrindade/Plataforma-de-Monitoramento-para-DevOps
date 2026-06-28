@@ -12,6 +12,7 @@ class AlertService
     public function evaluate(Service $service, Metric $metric): ?Alert
     {
         $level = $this->levelFor($metric);
+        $cooldownMinutes = (int) env('ALERT_COOLDOWN_MINUTES', 15);
 
         if ($level === 'GREEN') {
             return null;
@@ -26,7 +27,7 @@ class AlertService
             ->where('service_id', $service->id)
             ->where('level', $level)
             ->where('title', $title)
-            ->where('created_at', '>=', now()->subMinutes(5))
+            ->where('created_at', '>=', now()->subMinutes($cooldownMinutes))
             ->exists();
 
         if ($recentSimilarAlert) {

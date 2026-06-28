@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Alert;
+use App\Models\LoginFailure;
 use App\Models\Metric;
 use App\Models\SecurityEvent;
 use App\Models\Service;
@@ -165,6 +166,30 @@ class DatabaseSeeder extends Seeder
                 'source_ip' => null,
                 'created_at' => now()->subMinutes(4),
                 'updated_at' => now()->subMinutes(4),
+            ],
+        ]);
+
+        LoginFailure::insert([
+            [
+                'source_ip' => '10.0.0.44',
+                'email' => 'admin@monitor.local',
+                'user_agent' => 'Seeder Browser',
+                'created_at' => now()->subMinutes(24),
+                'updated_at' => now()->subMinutes(24),
+            ],
+            [
+                'source_ip' => '10.0.0.44',
+                'email' => 'admin@monitor.local',
+                'user_agent' => 'Seeder Browser',
+                'created_at' => now()->subMinutes(23),
+                'updated_at' => now()->subMinutes(23),
+            ],
+            [
+                'source_ip' => '10.0.0.44',
+                'email' => 'admin@monitor.local',
+                'user_agent' => 'Seeder Browser',
+                'created_at' => now()->subMinutes(22),
+                'updated_at' => now()->subMinutes(22),
             ],
         ]);
 

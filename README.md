@@ -130,6 +130,14 @@ O comando busca todos os serviços, testa disponibilidade, mede latência aproxi
 
 Também é possível executar a coleta pelo botão **Executar coleta agora** no dashboard administrativo.
 
+Para operação contínua em ambiente local, rode o scheduler em um terminal separado:
+
+```bash
+php artisan schedule:work
+```
+
+O projeto agenda `monitor:check` a cada minuto em `routes/console.php`.
+
 ## Métricas coletadas e simuladas
 
 A plataforma faz verificações reais de disponibilidade:
@@ -141,11 +149,28 @@ A plataforma faz verificações reais de disponibilidade:
 
 Algumas métricas de infraestrutura, como CPU, memória, I/O wait, tamanho do banco, queries lentas, taxa de entrega SMTP e volume de e-mails, são simuladas para fins didáticos. Isso evita instalar agentes externos e mantém o projeto simples, mas ainda permite apresentar o comportamento esperado de uma plataforma real de monitoramento.
 
+## Histórico e auditoria
+
+O sistema mantém histórico no banco para:
+
+- métricas coletadas em `metrics`;
+- alertas gerados em `alerts`;
+- eventos de segurança em `security_events`;
+- falhas de login simuladas em `login_failures`.
+
+Ao remover um serviço pela interface, ele é arquivado com soft delete. Isso evita perder métricas e alertas antigos, comportamento mais próximo de sistemas reais de monitoramento.
+
+Não há limpeza automática de retenção configurada. Em produção, seria comum definir uma política, por exemplo manter métricas detalhadas por 30 ou 90 dias e consolidar dados antigos.
+
+Alertas iguais para o mesmo serviço respeitam uma janela de cooldown configurável por `ALERT_COOLDOWN_MINUTES`, evitando spam visual e excesso de e-mails durante incidentes contínuos.
+
 ## Testando alertas e segurança
 
 - Execute `php artisan monitor:check` para coletar métricas reais.
 - Use a tela Segurança para simular falhas de login, anomalia de tráfego e alteração de configuração.
-- O painel consulta notificações automaticamente a cada 10 segundos e exibe popups quando surgem novos alertas ou eventos críticos.
+- O painel usa atualização leve a cada 30 segundos para notificações e também atualiza ao voltar o foco da aba ou após ações críticas.
+- Existe suporte opcional a SSE (Server-Sent Events) em `/api/notifications/stream`. Para habilitar, configure `VITE_ENABLE_SSE=true`.
+- No ambiente local com `php artisan serve`, o SSE fica desabilitado por padrão porque conexões longas podem segurar o servidor de desenvolvimento e atrasar outras chamadas após F5.
 - A API também aceita:
   - `POST /api/simulate-login-failure`
   - `POST /api/simulate-traffic-anomaly`

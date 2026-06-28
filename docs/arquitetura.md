@@ -36,3 +36,17 @@ As verificações de disponibilidade são reais. As métricas que normalmente ex
 
 O React consome `/api/dashboard`, `/api/services`, `/api/alerts` e `/api/security-events`. Os gráficos usam Chart.js a partir dos dados agregados pela API.
 
+## Atualização em tempo quase real
+
+Alertas e eventos de segurança usam atualização leve a cada 30 segundos, além de atualização ao voltar o foco da aba e após ações críticas. O projeto também possui suporte opcional a SSE (Server-Sent Events) no endpoint `/api/notifications/stream`, mas ele fica desabilitado por padrão no ambiente local porque o servidor de desenvolvimento do PHP pode bloquear outras requisições enquanto mantém uma conexão longa aberta.
+
+Em um ambiente com servidor web concorrente, como Nginx/Apache ou Laravel Octane, o SSE pode ser habilitado com `VITE_ENABLE_SSE=true`.
+
+A coleta de métricas continua centralizada no backend pelo comando `php artisan monitor:check`, que pode ser executado manualmente, pelo botão do dashboard ou por agendamento do Laravel Scheduler.
+
+## Histórico e retenção
+
+As tabelas `metrics`, `alerts`, `security_events` e `login_failures` preservam o histórico operacional e de segurança. Serviços removidos pela interface usam soft delete, mantendo os relacionamentos históricos disponíveis para auditoria.
+
+O projeto não apaga dados automaticamente. Uma melhoria futura natural seria criar uma rotina de retenção para compactar métricas antigas e evitar crescimento indefinido do banco.
+

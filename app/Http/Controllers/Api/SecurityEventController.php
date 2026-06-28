@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginFailure;
 use App\Models\Metric;
 use App\Models\SecurityEvent;
 use App\Models\Service;
@@ -19,12 +20,21 @@ class SecurityEventController extends Controller
         return response()->json([
             'events' => SecurityEvent::with('service')->latest()->limit(100)->get(),
             'known_vulnerabilities' => SecurityEvent::with('service')->where('type', 'VULNERABILITY')->latest()->get(),
+            'login_failures' => LoginFailure::latest()->limit(50)->get(),
         ]);
     }
 
     public function simulateLoginFailure(Request $request): JsonResponse
     {
         $ip = $request->input('source_ip', $request->ip());
+        $email = $request->input('email', 'admin@monitor.local');
+
+        LoginFailure::create([
+            'source_ip' => $ip,
+            'email' => $email,
+            'user_agent' => substr((string) $request->userAgent(), 0, 255),
+        ]);
+
         $key = "failed_login:{$ip}";
         $attempts = Cache::get($key, 0) + 1;
         Cache::put($key, $attempts, now()->addMinutes(10));
