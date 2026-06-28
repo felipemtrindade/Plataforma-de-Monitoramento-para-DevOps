@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
                 'type' => 'WEB',
                 'host' => 'https://www.google.com',
                 'port' => 443,
-                'description' => 'Servico web publico usado para validar disponibilidade HTTP.',
+                'description' => 'Serviço web público usado para validar disponibilidade HTTP.',
                 'current_status' => 'UP',
             ],
             [
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
                 'type' => 'DNS',
                 'host' => 'cloudflare.com',
                 'port' => 53,
-                'description' => 'Resolucao DNS simulando dependencia critica de nomes.',
+                'description' => 'Resolução DNS simulando dependência crítica de nomes.',
                 'current_status' => 'UP',
             ],
             [
@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
                 'type' => 'SMTP',
                 'host' => 'smtp.gmail.com',
                 'port' => 587,
-                'description' => 'Servico SMTP usado para testar conectividade de e-mail.',
+                'description' => 'Serviço SMTP usado para testar conectividade de e-mail.',
                 'current_status' => 'UP',
             ],
             [
@@ -106,7 +106,7 @@ class DatabaseSeeder extends Seeder
             'service_id' => $services[1]->id,
             'level' => 'YELLOW',
             'title' => 'YELLOW: DNS - Cloudflare',
-            'message' => 'O DNS apresentou latencia elevada acima de 200 ms.',
+            'message' => 'O DNS apresentou latência elevada acima de 200 ms.',
             'sent_by_email' => true,
             'created_at' => now()->subMinutes(25),
         ]);
@@ -115,7 +115,7 @@ class DatabaseSeeder extends Seeder
             'service_id' => $services[3]->id,
             'level' => 'RED',
             'title' => 'RED: Database - Local MySQL',
-            'message' => 'O banco local ficou indisponivel durante a ultima coleta.',
+            'message' => 'O banco local ficou indisponível durante a última coleta.',
             'sent_by_email' => true,
             'created_at' => now()->subMinutes(10),
         ]);
@@ -125,7 +125,7 @@ class DatabaseSeeder extends Seeder
                 'service_id' => $services[0]->id,
                 'type' => 'TRAFFIC_ANOMALY',
                 'level' => 'HIGH',
-                'description' => 'Web Server - Google ultrapassou 1000 requisicoes por segundo.',
+                'description' => 'Web Server - Google ultrapassou 1000 requisições por segundo.',
                 'source_ip' => '192.168.0.25',
                 'created_at' => now()->subMinutes(35),
                 'updated_at' => now()->subMinutes(35),
@@ -143,7 +143,7 @@ class DatabaseSeeder extends Seeder
                 'service_id' => null,
                 'type' => 'CONFIG_CHANGE',
                 'level' => 'MEDIUM',
-                'description' => 'Alteracao simulada no arquivo de configuracao monitor_config.txt.',
+                'description' => 'Alteração simulada no arquivo de configuração monitor_config.txt.',
                 'source_ip' => '127.0.0.1',
                 'created_at' => now()->subMinutes(15),
                 'updated_at' => now()->subMinutes(15),
@@ -152,7 +152,7 @@ class DatabaseSeeder extends Seeder
                 'service_id' => $services[2]->id,
                 'type' => 'VULNERABILITY',
                 'level' => 'CRITICAL',
-                'description' => 'SMTP - Gmail SMTP possui vulnerabilidade simulada: TLS obrigatorio nao validado no runbook.',
+                'description' => 'SMTP - Gmail SMTP possui vulnerabilidade simulada: TLS obrigatório não validado no runbook.',
                 'source_ip' => null,
                 'created_at' => now()->subMinutes(5),
                 'updated_at' => now()->subMinutes(5),
@@ -161,7 +161,7 @@ class DatabaseSeeder extends Seeder
                 'service_id' => $services[3]->id,
                 'type' => 'VULNERABILITY',
                 'level' => 'MEDIUM',
-                'description' => 'Database - Local MySQL possui vulnerabilidade simulada: usuario de aplicacao com privilegios amplos.',
+                'description' => 'Database - Local MySQL possui vulnerabilidade simulada: usuário de aplicação com privilégios amplos.',
                 'source_ip' => null,
                 'created_at' => now()->subMinutes(4),
                 'updated_at' => now()->subMinutes(4),
@@ -174,3 +174,4 @@ class DatabaseSeeder extends Seeder
         Cache::forever('monitor_config_hash', hash('sha256', File::get($configPath)));
     }
 }
+

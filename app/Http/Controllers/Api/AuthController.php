@@ -23,7 +23,7 @@ class AuthController extends Controller
             ->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Credenciais invalidas.'], 422);
+            return response()->json(['message' => 'Credenciais inválidas.'], 422);
         }
 
         $plainToken = Str::random(64);
@@ -56,6 +56,6 @@ class AuthController extends Controller
     {
         $request->user()->update(['api_token' => null]);
 
-        return response()->json(['message' => 'Sessao encerrada.']);
+        return response()->json(['message' => 'Sessão encerrada.']);
     }
 }

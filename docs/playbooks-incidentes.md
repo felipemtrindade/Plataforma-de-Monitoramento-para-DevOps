@@ -2,32 +2,33 @@
 
 ## Incidente RED de disponibilidade
 
-Objetivo: restaurar o servico o mais rapido possivel.
+Objetivo: restaurar o serviço o mais rápido possível.
 
 1. Confirmar alerta RED na tela Alertas.
-2. Abrir detalhes do servico e verificar ultimas metricas.
+2. Abrir detalhes do serviço e verificar últimas métricas.
 3. Testar host e porta manualmente.
-4. Verificar se houve alteracao de configuracao no mesmo periodo.
-5. Aplicar correcao operacional.
+4. Verificar se houve alteração de configuração no mesmo período.
+5. Aplicar correção operacional.
 6. Executar `php artisan monitor:check` novamente.
-7. Encerrar incidente quando o servico voltar para UP.
+7. Encerrar incidente quando o serviço voltar para UP.
 
-## Incidente YELLOW de latencia
+## Incidente YELLOW de latência
 
-Objetivo: impedir que degradacao vire indisponibilidade.
+Objetivo: impedir que degradação vire indisponibilidade.
 
-1. Identificar servico com latencia entre 200 ms e 500 ms.
-2. Comparar com historico no grafico.
-3. Verificar conexoes ativas, QPS e taxa de erro.
-4. Reduzir carga, otimizar consulta ou escalar recurso quando aplicavel.
+1. Identificar serviço com latência entre 200 ms e 500 ms.
+2. Comparar com histórico no gráfico.
+3. Verificar conexões ativas, QPS e taxa de erro.
+4. Reduzir carga, otimizar consulta ou escalar recurso quando aplicável.
 5. Acompanhar novas coletas.
 
-## Incidente de seguranca
+## Incidente de segurança
 
-Objetivo: conter a origem e preservar evidencias.
+Objetivo: conter a origem e preservar evidências.
 
-1. Abrir tela Seguranca.
+1. Abrir tela Segurança.
 2. Classificar evento: TRAFFIC_ANOMALY, BRUTE_FORCE, CONFIG_CHANGE ou VULNERABILITY.
 3. Registrar IP de origem quando existir.
-4. Aplicar bloqueio, reversao ou correcao.
-5. Documentar a causa e a acao tomada.
+4. Aplicar bloqueio, reversão ou correção.
+5. Documentar a causa e a ação tomada.
+

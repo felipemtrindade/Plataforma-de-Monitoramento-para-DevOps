@@ -39,9 +39,9 @@ const api = async (path, options = {}) => {
 
 const navItems = [
   ['dashboard', 'Dashboard'],
-  ['services', 'Servicos'],
+  ['services', 'Serviços'],
   ['alerts', 'Alertas'],
-  ['security', 'Seguranca'],
+  ['security', 'Segurança'],
   ['docs', 'Runbooks'],
 ];
 
@@ -138,7 +138,7 @@ function App() {
   };
 
   if (booting) {
-    return <State title="Carregando" message="Validando sessao administrativa..." />;
+    return <State title="Carregando" message="Validando sessão administrativa..." />;
   }
 
   if (!user) {
@@ -214,7 +214,7 @@ function Login({ onLogin }) {
     try {
       onLogin(await api('/login', { method: 'POST', body: JSON.stringify(form) }));
     } catch (err) {
-      setError('Nao foi possivel entrar. Confira e-mail e senha do administrador.');
+      setError('Não foi possível entrar. Confira e-mail e senha do administrador.');
     } finally {
       setLoading(false);
     }
@@ -225,7 +225,7 @@ function Login({ onLogin }) {
       <form className="login-card" onSubmit={submit}>
         <p className="eyebrow">Acesso administrativo</p>
         <h1>Plataforma de Monitoramento para DevOps</h1>
-        <p>Entre como administrador para visualizar metricas, alertas e controles de seguranca.</p>
+        <p>Entre como administrador para visualizar métricas, alertas e controles de segurança.</p>
         {error && <div className="inline-error">{error}</div>}
         <label>
           E-mail
@@ -236,7 +236,7 @@ function Login({ onLogin }) {
           <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
         </label>
         <button type="submit" disabled={loading}>{loading ? 'Entrando...' : 'Entrar no painel'}</button>
-        <small>Usuario inicial: admin@monitor.local / admin123</small>
+        <small>Usuário inicial: admin@monitor.local / admin123</small>
       </form>
     </main>
   );
@@ -268,7 +268,7 @@ function Dashboard({ onMonitorFinished }) {
   };
 
   if (error) return <State title="Falha ao carregar dashboard" message={error} />;
-  if (!data) return <State title="Carregando dashboard" message="Buscando metricas e alertas..." />;
+  if (!data) return <State title="Carregando dashboard" message="Buscando métricas e alertas..." />;
 
   const summary = data.summary;
   const latency = data.latency_by_service ?? [];
@@ -279,24 +279,24 @@ function Dashboard({ onMonitorFinished }) {
 
   return (
     <section>
-      <PageHeader title="Dashboard geral" subtitle="Visao consolidada dos servicos, metricas, alertas e seguranca." />
+      <PageHeader title="Dashboard geral" subtitle="Visão consolidada dos serviços, métricas, alertas e segurança." />
       <div className="toolbar">
         <button onClick={runMonitor} disabled={running}>{running ? 'Coletando...' : 'Executar coleta agora'}</button>
         {monitorOutput && <pre>{monitorOutput}</pre>}
       </div>
       <div className="stats-grid">
-        <Stat label="Total de servicos" value={summary.total_services} />
-        <Stat label="Servicos UP" value={summary.services_up} tone="success" />
-        <Stat label="Servicos DOWN" value={summary.services_down} tone="danger" />
+        <Stat label="Total de serviços" value={summary.total_services} />
+        <Stat label="Serviços UP" value={summary.services_up} tone="success" />
+        <Stat label="Serviços DOWN" value={summary.services_down} tone="danger" />
         <Stat label="Alertas amarelos" value={summary.yellow_alerts} tone="warning" />
         <Stat label="Alertas vermelhos" value={summary.red_alerts} tone="danger" />
-        <Stat label="Eventos de seguranca" value={summary.security_events} />
+        <Stat label="Eventos de segurança" value={summary.security_events} />
         <Stat label="Vulnerabilidades" value={summary.known_vulnerabilities} tone="danger" />
-        <Stat label="Taxa media de erro" value={`${summary.average_error_rate}%`} tone="warning" />
+        <Stat label="Taxa média de erro" value={`${summary.average_error_rate}%`} tone="warning" />
       </div>
 
       <div className="charts-grid">
-        <ChartPanel title="Latencia por servico">
+        <ChartPanel title="Latência por serviço">
           <Bar
             data={{
               labels: latency.map((item) => item.service),
@@ -328,7 +328,7 @@ function Dashboard({ onMonitorFinished }) {
             }}
           />
         </ChartPanel>
-        <ChartPanel title="Trafego e consultas">
+        <ChartPanel title="Tráfego e consultas">
           <Bar
             data={{
               labels: traffic.map((item) => item.service),
@@ -383,7 +383,7 @@ function Services({ onOpen }) {
 
   return (
     <section>
-      <PageHeader title="Servicos monitorados" subtitle="Cadastro e listagem dos alvos de monitoramento." />
+      <PageHeader title="Serviços monitorados" subtitle="Cadastro e listagem dos alvos de monitoramento." />
       {error && <State title="Erro" message={error} />}
       <form className="service-form" onSubmit={submit}>
         <input placeholder="Nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -395,11 +395,11 @@ function Services({ onOpen }) {
         </select>
         <input placeholder="Host" value={form.host} onChange={(e) => setForm({ ...form, host: e.target.value })} required />
         <input placeholder="Porta" type="number" value={form.port} onChange={(e) => setForm({ ...form, port: e.target.value })} />
-        <input className="wide" placeholder="Descricao" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-        <button type="submit">Adicionar servico</button>
+        <input className="wide" placeholder="Descrição" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        <button type="submit">Adicionar serviço</button>
       </form>
 
-      {loading ? <State title="Carregando" message="Buscando servicos..." /> : (
+      {loading ? <State title="Carregando" message="Buscando serviços..." /> : (
         <div className="table-wrap">
           <table>
             <thead>
@@ -408,9 +408,9 @@ function Services({ onOpen }) {
                 <th>Tipo</th>
                 <th>Host</th>
                 <th>Status</th>
-                <th>Metricas</th>
+                <th>Métricas</th>
                 <th>Alertas</th>
-                <th>Acoes</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -446,8 +446,8 @@ function ServiceDetail({ id, onBack }) {
     api(`/services/${id}/metrics`).then(setMetrics);
   }, [id]);
 
-  if (!id) return <State title="Nenhum servico selecionado" message="Volte para a listagem e escolha um servico." />;
-  if (!service) return <State title="Carregando servico" message="Buscando detalhes..." />;
+  if (!id) return <State title="Nenhum serviço selecionado" message="Volte para a listagem e escolha um serviço." />;
+  if (!service) return <State title="Carregando serviço" message="Buscando detalhes..." />;
 
   const orderedMetrics = [...metrics].reverse();
   const latestMetric = metrics[0];
@@ -458,27 +458,27 @@ function ServiceDetail({ id, onBack }) {
       <PageHeader title={service.name} subtitle={`${service.type} em ${service.host}:${service.port}`} />
       <div className="stats-grid compact">
         <Stat label="Status atual" value={service.current_status} tone={service.current_status === 'UP' ? 'success' : 'danger'} />
-        <Stat label="Metricas coletadas" value={service.metrics.length} />
-        <Stat label="Alertas historicos" value={service.alerts.length} tone="warning" />
+        <Stat label="Métricas coletadas" value={service.metrics.length} />
+        <Stat label="Alertas históricos" value={service.alerts.length} tone="warning" />
       </div>
-      <ChartPanel title="Historico de latencia">
+      <ChartPanel title="Histórico de latência">
         <Line
           data={{
             labels: orderedMetrics.map((metric) => new Date(metric.created_at).toLocaleTimeString()),
-            datasets: [{ label: 'Latencia (ms)', data: orderedMetrics.map((metric) => metric.latency_ms ?? 0), borderColor: '#2563eb', backgroundColor: '#bfdbfe' }],
+            datasets: [{ label: 'Latência (ms)', data: orderedMetrics.map((metric) => metric.latency_ms ?? 0), borderColor: '#2563eb', backgroundColor: '#bfdbfe' }],
           }}
         />
       </ChartPanel>
       {latestMetric && (
-        <Panel title="Metricas tecnicas do protocolo">
+        <Panel title="Métricas técnicas do protocolo">
           <ProtocolMetrics service={service} metric={latestMetric} />
         </Panel>
       )}
       <div className="two-columns">
-        <Panel title="Ultimas metricas">
+        <Panel title="Últimas métricas">
           <MiniList items={metrics.slice(0, 8).map((metric) => `${metric.status} - ${metric.latency_ms ?? 'sem resposta'} ms - ${metric.requests_per_second} req/s`)} />
         </Panel>
-        <Panel title="Alertas do servico">
+        <Panel title="Alertas do serviço">
           <MiniList items={service.alerts.map((alert) => `${alert.level}: ${alert.message}`)} />
         </Panel>
       </div>
@@ -488,10 +488,10 @@ function ServiceDetail({ id, onBack }) {
 
 function ProtocolMetrics({ service, metric }) {
   const common = [
-    ['Latencia', metric.latency_ms ? `${metric.latency_ms} ms` : 'sem resposta'],
+    ['Latência', metric.latency_ms ? `${metric.latency_ms} ms` : 'sem resposta'],
     ['Taxa de erro', `${metric.error_rate}%`],
     ['Erros registrados', metric.error_count],
-    ['Conexoes ativas', metric.active_connections],
+    ['Conexões ativas', metric.active_connections],
   ];
 
   const byType = {
@@ -508,9 +508,9 @@ function ProtocolMetrics({ service, metric }) {
       ['Queries lentas', metric.slow_queries],
     ],
     DNS: [
-      ['Tempo de resolucao', metric.dns_response_time ? `${metric.dns_response_time} ms` : 'sem resposta'],
+      ['Tempo de resolução', metric.dns_response_time ? `${metric.dns_response_time} ms` : 'sem resposta'],
       ['Queries por segundo', metric.qps],
-      ['Falhas de resolucao', metric.failed_resolutions],
+      ['Falhas de resolução', metric.failed_resolutions],
     ],
     SMTP: [
       ['Fila SMTP', metric.smtp_queue_size],
@@ -537,17 +537,17 @@ function Alerts() {
 
   return (
     <section>
-      <PageHeader title="Alertas" subtitle="Historico de alertas amarelos e vermelhos com envio de e-mail simulado." />
+      <PageHeader title="Alertas" subtitle="Histórico de alertas amarelos e vermelhos com envio de e-mail simulado." />
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Nivel</th><th>Servico</th><th>Titulo</th><th>Email</th><th>Data</th></tr></thead>
+          <thead><tr><th>Nível</th><th>Serviço</th><th>Título</th><th>Email</th><th>Data</th></tr></thead>
           <tbody>
             {alerts.map((alert) => (
               <tr key={alert.id}>
                 <td><span className={badgeClass(alert.level)}>{alert.level}</span></td>
                 <td>{alert.service?.name}</td>
                 <td>{alert.title}</td>
-                <td>{alert.sent_by_email ? 'Sim' : 'Nao'}</td>
+                <td>{alert.sent_by_email ? 'Sim' : 'Não'}</td>
                 <td>{new Date(alert.created_at).toLocaleString()}</td>
               </tr>
             ))}
@@ -571,11 +571,11 @@ function Security({ onChanged }) {
 
   return (
     <section>
-      <PageHeader title="Seguranca" subtitle="Eventos simulados de trafego, brute force, configuracao e vulnerabilidades." />
+      <PageHeader title="Segurança" subtitle="Eventos simulados de tráfego, brute force, configuração e vulnerabilidades." />
       <div className="button-row">
         <button onClick={() => simulate('/simulate-login-failure')}>Simular falha de login</button>
-        <button onClick={() => simulate('/simulate-traffic-anomaly')}>Simular anomalia de trafego</button>
-        <button onClick={() => simulate('/simulate-config-change')}>Simular alteracao de config</button>
+        <button onClick={() => simulate('/simulate-traffic-anomaly')}>Simular anomalia de tráfego</button>
+        <button onClick={() => simulate('/simulate-config-change')}>Simular alteração de config</button>
       </div>
       <div className="two-columns">
         <Panel title="Eventos recentes">
@@ -591,15 +591,15 @@ function Security({ onChanged }) {
 
 function Docs() {
   const docs = [
-    ['Web Server DOWN', 'Validar conectividade, DNS, porta 443 e logs da aplicacao. Se o erro persistir, acionar responsavel pelo servico.'],
-    ['DNS com latencia alta', 'Comparar resolucao local e externa, testar outro resolvedor e verificar alteracoes recentes de zona.'],
-    ['Brute force', 'Bloquear IP ofensivo, revisar logs de autenticacao e recomendar troca de senha quando houver risco.'],
-    ['Alteracao de configuracao', 'Comparar hash, revisar diff do arquivo monitor_config.txt e registrar responsavel pela mudanca.'],
+    ['Web Server DOWN', 'Validar conectividade, DNS, porta 443 e logs da aplicação. Se o erro persistir, acionar responsável pelo serviço.'],
+    ['DNS com latência alta', 'Comparar resolução local e externa, testar outro resolvedor e verificar alterações recentes de zona.'],
+    ['Brute force', 'Bloquear IP ofensivo, revisar logs de autenticação e recomendar troca de senha quando houver risco.'],
+    ['Alteração de configuração', 'Comparar hash, revisar diff do arquivo monitor_config.txt e registrar responsável pela mudança.'],
   ];
 
   return (
     <section>
-      <PageHeader title="Documentacao e runbooks" subtitle="Procedimentos curtos para responder incidentes comuns." />
+      <PageHeader title="Documentação e runbooks" subtitle="Procedimentos curtos para responder incidentes comuns." />
       <div className="runbook-grid">
         {docs.map(([title, text]) => <Panel key={title} title={title}><p>{text}</p></Panel>)}
       </div>
@@ -623,11 +623,11 @@ function NotificationBar({ notifications, unreadCount, isOpen, onToggle, onRefre
   return (
     <div className={`notification-bar ${isOpen ? 'expanded' : 'compact'}`}>
       <div>
-        <strong>{criticalCount} avisos criticos</strong>
+        <strong>{criticalCount} avisos críticos</strong>
         <span>
           {unreadCount > 0
-            ? `${unreadCount} notificacao(oes) nova(s) detectada(s) automaticamente`
-            : `${notifications.length} notificacoes recentes monitoradas a cada 10s`}
+            ? `${unreadCount} notificações novas detectadas automaticamente`
+            : `${notifications.length} notificações recentes monitoradas a cada 10s`}
         </span>
       </div>
       <button className="ghost" onClick={onToggle}>{isOpen ? 'Ocultar avisos' : 'Ver avisos'}</button>
@@ -658,7 +658,7 @@ function ToastStack({ toasts, onDismiss }) {
         <article key={toast.toastId} className={`toast ${toast.level?.toLowerCase()}`}>
           <span className={badgeClass(toast.level)}>{toast.level}</span>
           <div>
-            <strong>{toast.type === 'SECURITY' ? 'Evento de seguranca' : 'Alerta de servico'}</strong>
+            <strong>{toast.type === 'SECURITY' ? 'Evento de segurança' : 'Alerta de serviço'}</strong>
             <p>{toast.title}: {toast.message}</p>
           </div>
           <button className="toast-close" onClick={() => onDismiss(toast.toastId)} aria-label="Fechar aviso">x</button>
@@ -691,3 +691,4 @@ function State({ title, message }) {
 }
 
 createRoot(document.getElementById('root')).render(<App />);
+

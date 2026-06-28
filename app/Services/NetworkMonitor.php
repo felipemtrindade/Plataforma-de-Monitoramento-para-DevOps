@@ -159,3 +159,4 @@ class NetworkMonitor
         return (int) round($errorRate * random_int(10, 40));
     }
 }
+

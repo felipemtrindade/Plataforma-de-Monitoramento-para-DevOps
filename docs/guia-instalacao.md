@@ -1,4 +1,4 @@
-# Guia de Instalacao
+# Guia de Instalação
 
 ## Requisitos
 
@@ -51,3 +51,4 @@ Coleta manual:
 ```bash
 php artisan monitor:check
 ```
+

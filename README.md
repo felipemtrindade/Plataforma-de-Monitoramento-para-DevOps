@@ -1,20 +1,20 @@
 # Plataforma de Monitoramento para DevOps
 
-Projeto web academico para a disciplina de Redes de Computadores. A aplicacao simula uma plataforma simples de monitoramento de servicos de rede, com dashboard, metricas, alertas por e-mail e eventos basicos de seguranca.
+Projeto web acadêmico para a disciplina de Redes de Computadores. A aplicação simula uma plataforma simples de monitoramento de serviços de rede, com dashboard, métricas, alertas por e-mail e eventos básicos de segurança.
 
 ## Tecnologias
 
 - Backend: Laravel
 - Banco de dados: MySQL
 - Frontend: React com Vite
-- Graficos: Chart.js
+- Gráficos: Chart.js
 - E-mail: SMTP simples, recomendado Mailtrap para testes
 
 ## Arquitetura
 
-A aplicacao usa arquitetura monolitica. O Laravel serve a API REST, executa o comando de coleta `monitor:check`, acessa o MySQL via Eloquent e entrega a SPA React via Vite. O React consome os endpoints `/api/*` para renderizar dashboard, servicos, alertas, seguranca e runbooks.
+A aplicação usa arquitetura monolítica. O Laravel serve a API REST, executa o comando de coleta `monitor:check`, acessa o MySQL via Eloquent e entrega a SPA React via Vite. O React consome os endpoints `/api/*` para renderizar dashboard, serviços, alertas, segurança e runbooks.
 
-## Instalacao
+## Instalação
 
 ```bash
 composer install
@@ -41,7 +41,7 @@ Configure SMTP, por exemplo com Mailtrap:
 MAIL_MAILER=smtp
 MAIL_HOST=sandbox.smtp.mailtrap.io
 MAIL_PORT=2525
-MAIL_USERNAME=seu_usuario
+MAIL_USERNAME=seu_usuário
 MAIL_PASSWORD=sua_senha
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=monitoramento@example.com
@@ -57,7 +57,7 @@ Crie o banco `devops_monitor` no MySQL e execute:
 php artisan migrate:fresh --seed
 ```
 
-Os seeders criam servicos iniciais, metricas, alertas e eventos de seguranca:
+Os seeders criam serviços iniciais, métricas, alertas e eventos de segurança:
 
 - Web Server - Google
 - DNS - Cloudflare
@@ -78,7 +78,7 @@ Frontend em desenvolvimento:
 npm run dev
 ```
 
-Build de producao:
+Build de produção:
 
 ```bash
 npm run build
@@ -86,7 +86,7 @@ npm run build
 
 ## Acesso administrativo
 
-O painel de monitoramento e as APIs principais sao protegidos por login de administrador. O seeder cria um usuario inicial:
+O painel de monitoramento e as APIs principais são protegidos por login de administrador. O seeder cria um usuário inicial:
 
 ```txt
 E-mail: admin@monitor.local
@@ -97,7 +97,7 @@ Depois do login, o frontend guarda um token local e envia esse token nas chamada
 
 ## API principal
 
-Rotas publicas:
+Rotas públicas:
 
 - `POST /api/login`
 
@@ -126,43 +126,44 @@ Rotas protegidas por token de administrador:
 php artisan monitor:check
 ```
 
-O comando busca todos os servicos, testa disponibilidade, mede latencia aproximada, salva metricas, atualiza status e gera alertas amarelos/vermelhos.
+O comando busca todos os serviços, testa disponibilidade, mede latência aproximada, salva métricas, atualiza status e gera alertas amarelos/vermelhos.
 
-Tambem e possivel executar a coleta pelo botao **Executar coleta agora** no dashboard administrativo.
+Também é possível executar a coleta pelo botão **Executar coleta agora** no dashboard administrativo.
 
-## Metricas coletadas e simuladas
+## Métricas coletadas e simuladas
 
-A plataforma faz verificacoes reais de disponibilidade:
+A plataforma faz verificações reais de disponibilidade:
 
-- WEB: requisicao HTTP/HTTPS com status code.
-- DATABASE: conexao com o banco configurado ou teste TCP para hosts externos.
-- DNS: resolucao de dominio.
-- SMTP: conexao TCP na porta configurada.
+- WEB: requisição HTTP/HTTPS com status code.
+- DATABASE: conexão com o banco configurado ou teste TCP para hosts externos.
+- DNS: resolução de domínio.
+- SMTP: conexão TCP na porta configurada.
 
-Algumas metricas de infraestrutura, como CPU, memoria, I/O wait, tamanho do banco, queries lentas, taxa de entrega SMTP e volume de e-mails, sao simuladas para fins didaticos. Isso evita instalar agentes externos e mantem o projeto simples, mas ainda permite apresentar o comportamento esperado de uma plataforma real de monitoramento.
+Algumas métricas de infraestrutura, como CPU, memória, I/O wait, tamanho do banco, queries lentas, taxa de entrega SMTP e volume de e-mails, são simuladas para fins didáticos. Isso evita instalar agentes externos e mantém o projeto simples, mas ainda permite apresentar o comportamento esperado de uma plataforma real de monitoramento.
 
-## Testando alertas e seguranca
+## Testando alertas e segurança
 
-- Execute `php artisan monitor:check` para coletar metricas reais.
-- Use a tela Seguranca para simular falhas de login, anomalia de trafego e alteracao de configuracao.
-- O painel consulta notificacoes automaticamente a cada 10 segundos e exibe popups quando surgem novos alertas ou eventos criticos.
-- A API tambem aceita:
+- Execute `php artisan monitor:check` para coletar métricas reais.
+- Use a tela Segurança para simular falhas de login, anomalia de tráfego e alteração de configuração.
+- O painel consulta notificações automaticamente a cada 10 segundos e exibe popups quando surgem novos alertas ou eventos críticos.
+- A API também aceita:
   - `POST /api/simulate-login-failure`
   - `POST /api/simulate-traffic-anomaly`
   - `POST /api/simulate-config-change`
 
 ## Telas
 
-- Dashboard geral: cards de servicos, alertas e seguranca, alem de graficos de latencia, disponibilidade, alertas e eventos.
-- Servicos monitorados: cadastro, listagem, exclusao e acesso aos detalhes.
-- Detalhes do servico: informacoes, status, ultimas metricas, grafico de latencia e alertas.
-- Alertas: historico de alertas e indicacao de envio por e-mail.
-- Seguranca: eventos simulados e vulnerabilidades conhecidas.
-- Documentacao/Runbooks: procedimentos simples para incidentes comuns.
+- Dashboard geral: cards de serviços, alertas e segurança, além de gráficos de latência, disponibilidade, alertas e eventos.
+- Serviços monitorados: cadastro, listagem, exclusão e acesso aos detalhes.
+- Detalhes do serviço: informações, status, últimas métricas, gráfico de latência e alertas.
+- Alertas: histórico de alertas e indicação de envio por e-mail.
+- Segurança: eventos simulados e vulnerabilidades conhecidas.
+- Documentação/Runbooks: procedimentos simples para incidentes comuns.
 
-## Documentacao adicional
+## Documentação adicional
 
 - [Arquitetura](docs/arquitetura.md)
 - [Runbooks](docs/runbooks.md)
 - [Playbooks de Incidentes](docs/playbooks-incidentes.md)
-- [Guia de Instalacao](docs/guia-instalacao.md)
+- [Guia de Instalação](docs/guia-instalacao.md)
+
